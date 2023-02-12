@@ -1,54 +1,58 @@
 import matplotlib as mpl
 from matplotlib.patches import Circle, Ellipse, Rectangle, Arc
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import pandas as pd
+import numpy as np
 
 MM_team_df = pd.read_csv(r"C:\Users\Suhana\Spring23\ballinsights\tourney_stats_team.csv")
 
 cmap = plt.get_cmap('YlOrRd')
-team1 = input("Enter team 1:")
-team2 =  input("Enter team2:")
+#team1 = input("Enter team 1:")
+#team2 =  input("Enter team 2:")
 
-def get_team1_win(inax):
+def get_team1_win(inax, team1):
     team1_row = MM_team_df[(MM_team_df.TeamName == team1)]
     keys = team1_row.columns.tolist()
     values = team1_row.iloc[0].tolist()
     team1_dict = dict(zip(keys, values))
-    team1_dict['W3Pt%'] = team1_dict['W2Pt%']/100
+    team1_dict['W3Pt%'] = team1_dict['W3Pt%']/100
     team1_dict['WFT%'] = team1_dict['WFT%']/100
 
     draw_court(ax=inax, outer_lines=True, intwo_percent=team1_dict['W2Pt%'], inthree_percent=team1_dict['W3Pt%'], inft_percent=team1_dict['WFT%'], inassist_ct=team1_dict['WAssists'])
 
 
-def get_team1_lose(inax):
+def get_team1_lose(inax, team1):
     team1_row = MM_team_df[(MM_team_df.TeamName == team1)]
     keys = team1_row.columns.tolist()
     values = team1_row.iloc[0].tolist()
     team1_dict = dict(zip(keys, values))
-    team1_dict['L3Pt%'] = team1_dict['L2Pt%']/100
+    team1_dict['L3Pt%'] = team1_dict['L3Pt%']/100
     team1_dict['LFT%'] = team1_dict['LFT%']/100
 
     draw_court(ax=inax, outer_lines=True, intwo_percent=team1_dict['L2Pt%'], inthree_percent=team1_dict['L3Pt%'], inft_percent=team1_dict['LFT%'], inassist_ct=team1_dict['LAssists'])
 
-def get_team2_win(inax):
+def get_team2_win(inax, team2):
     team2_row = MM_team_df[(MM_team_df.TeamName == team2)]
     keys = team2_row.columns.tolist()
     values = team2_row.iloc[0].tolist()
     team2_dict = dict(zip(keys, values))
-    team2_dict['W3Pt%'] = team2_dict['W2Pt%']/100
+    team2_dict['W3Pt%'] = team2_dict['W3Pt%']/100
     team2_dict['WFT%'] = team2_dict['WFT%']/100
 
     draw_court(ax=inax, outer_lines=True, intwo_percent=team2_dict['W2Pt%'], inthree_percent=team2_dict['W3Pt%'], inft_percent=team2_dict['WFT%'], inassist_ct=team2_dict['WAssists'])
 
 
-def get_team2_lose(inax):
+def get_team2_lose(inax, team2):
     team2_row = MM_team_df[(MM_team_df.TeamName == team2)]
     keys = team2_row.columns.tolist()
     values = team2_row.iloc[0].tolist()
     team2_dict = dict(zip(keys, values))
-    team2_dict['L3Pt%'] = team2_dict['L2Pt%']/100
+    team2_dict['L3Pt%'] = team2_dict['L3Pt%']/100
     team2_dict['LFT%'] = team2_dict['LFT%']/100
 
     draw_court(ax=inax, outer_lines=True, intwo_percent=team2_dict['L2Pt%'], inthree_percent=team2_dict['L3Pt%'], inft_percent=team2_dict['LFT%'], inassist_ct=team2_dict['LAssists'])
@@ -105,7 +109,6 @@ def draw_court(ax=None, color='black', lw=2, outer_lines=False, intwo_percent=50
     center_inner_arc = Arc((0, 422.5), 40, 40, theta1=180, theta2=0, color=color, fill=False)
 
     three_percent = Rectangle((-250, -45), 500, 465, color=cmap(inthree_percent), fill=True)
-
     # List of the court elements to be plotted onto the axes
     court_elements = [three_percent, restricted, corner_three_a,
                       corner_three_b, two_percent, three_arc, two_percent2, center_outer_arc,
@@ -124,51 +127,41 @@ def draw_court(ax=None, color='black', lw=2, outer_lines=False, intwo_percent=50
     return ax
 
 
+def create_plot(team1, team2):
+    fig = Figure((5,4), dpi = 100)
+    fig, ((ax1, ax2),(ax3,ax4)) = plt.subplots(2,2)
 
-fig, ((ax1, ax2),(ax3,ax4)) = plt.subplots(2,2)
+    get_team1_win(ax1, team1)
+    ax1.set_title(team1 + ' Win Stats')
+    ax1.set_xlim(250,-250)
+    ax1.set_ylim(-48,423)
 
-get_team1_win(ax1)
-ax1.set_title(team1 + ' Win Stats')
-ax1.set_xlim(250,-250)
-ax1.set_ylim(-48,423)
+    get_team1_lose(ax2, team1)
+    ax2.set_title(team1 + ' Lose Stats')
+    ax2.set_xlim(250, -250)
+    ax2.set_ylim(-48, 423)
 
-get_team1_lose(ax2)
-ax2.set_title(team1 + ' Lose Stats')
-ax2.set_xlim(250, -250)
-ax2.set_ylim(-48, 423)
+    fig.subplots_adjust(wspace=0.5, hspace=0.5)
 
-fig.subplots_adjust(wspace=0.5, hspace=0.5)
+    get_team2_win(ax3, team2)
+    ax3.set_title(team2 + ' Win Stats')
+    ax3.set_xlim(250,-250)
+    ax3.set_ylim(-48,423)
 
-get_team2_win(ax3)
-ax3.set_title(team2 + ' Win Stats')
-ax3.set_xlim(250,-250)
-ax3.set_ylim(-48,423)
+    get_team2_lose(ax4, team2)
+    ax4.set_title(team2 + ' Lose Stats')
+    ax4.set_xlim(250,-250)
+    ax4.set_ylim(-48,423)
 
-get_team2_lose(ax4)
-ax4.set_title(team2 + ' Lose Stats')
-ax4.set_xlim(250,-250)
-ax4.set_ylim(-48,423)
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
+    sm = plt.cm.ScalarMappable(cmap=cmap)
+    sm.set_array([])
+    axs5 = fig.colorbar(sm, cax=cbar_ax, orientation="vertical")
+    plt.show()
 
-
-fig.subplots_adjust(right=0.8)
-cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
-sm = plt.cm.ScalarMappable(cmap=cmap)
-sm.set_array([])
-axs5 = fig.colorbar(sm, cax=cbar_ax, orientation="vertical")
-
-
-plt.show()
-
-'''
-
-plt.figure(figsize=(5,5))
-plt.xlim(250,-250)
-plt.ylim(-48,423)
-sm = plt.cm.ScalarMappable(cmap=cmap)
-sm.set_array([])
-plt.colorbar(sm, orientation="horizontal")
-
-get_team1_win()
-
-plt.show()
-'''
+    canvas = FigureCanvas(fig)
+    canvas.draw()
+    s, (width, height) = canvas.print_to_buffer()
+    X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
+    return X
